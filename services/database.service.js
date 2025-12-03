@@ -1,16 +1,19 @@
-import { reports } from "../db/database.js"; 
+import { reports } from "../db/database.js";
 
 
 export function pushReport(data) {
-    reports.push(data)
+    for(r in data){
+        reports.push(r)
+    }
 }
 
 export function showAll() {
-    return reports.sort((a, b) => a.id - b.id)
+    return toSorted((a, b) => a.id - b.id)
 }
 
 export function showByField(field) {
-    return reports.sort((a, b) => a.field - b.field)
+    return reports.toSorted((a, b) => String(a[field]).localeCompare(b[field])
+    )
 }
 
 export function searchingByID(idnum) {
@@ -21,9 +24,37 @@ export function searchingByID(idnum) {
 }
 
 export function deletReportByID(idnum) {
-    reports.forEach((report, i) => {
-        if (report[i] === idnum){
-            report.splice(0, i)
+    try {
+        const index = reports.findIndex((report) => {
+            return report.id === idnum
+        })
+        if (index !== -1) {
+            reports.splice(i, 1)
         }
-    }); 
+    } catch (error) {
+        console.log('eror', error);
+
+    }
+
+};
+
+const arr = ["teroristName", "id", "weopens"];
+
+export function updateReport(idnum, newObject) {
+    const index = reports.findIndex((report) => {
+        return report.id === idnum
+    })
+    if (index !== -1) {
+        for (const key in newObject) {
+            if (!key in arr) {
+                return false;
+            }
+        }
+        const update = { ...reports[index], ...newObject }
+        reports.splice(index, 1, update);
+        return true;
+    }
+    return false;
 }
+
+
